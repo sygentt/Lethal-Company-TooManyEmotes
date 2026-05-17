@@ -5,3 +5,5 @@
 *.csproj.user
 *.py
 *.bat
+.agents
+skills-lock.json
