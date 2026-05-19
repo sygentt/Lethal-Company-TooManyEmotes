@@ -229,17 +229,36 @@
   <Target Name="PackageThunderstore" AfterTargets="Build">
     <PropertyGroup>
       <ThunderstoreDir>$(ProjectDir)Thunderstore</ThunderstoreDir>
+      <ThunderstoreStagingDir>$(ProjectDir)bin\ThunderstoreStaging</ThunderstoreStagingDir>
       <ThunderstoreZip>$(ProjectDir)bin\TooManyEmotes-Thunderstore.zip</ThunderstoreZip>
     </PropertyGroup>
     
-    <!-- Copy DLL to Thunderstore folder root -->
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ThunderstoreDir)" OverwriteReadOnlyFiles="true" />
+    <!-- Clean staging directory -->
+    <RemoveDir Directories="$(ThunderstoreStagingDir)" Condition="Exists('$(ThunderstoreStagingDir)')" />
+    <MakeDir Directories="$(ThunderstoreStagingDir)" />
+    <MakeDir Directories="$(ThunderstoreStagingDir)\plugins" />
+    
+    <!-- Copy root level files -->
+    <Copy SourceFiles="$(ThunderstoreDir)\CHANGELOG.md" DestinationFolder="$(ThunderstoreStagingDir)" />
+    <Copy SourceFiles="$(ThunderstoreDir)\icon.png" DestinationFolder="$(ThunderstoreStagingDir)" />
+    <Copy SourceFiles="$(ThunderstoreDir)\manifest.json" DestinationFolder="$(ThunderstoreStagingDir)" />
+    <Copy SourceFiles="$(ThunderstoreDir)\README.md" DestinationFolder="$(ThunderstoreStagingDir)" />
+    
+    <!-- Copy plugins folder contents -->
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ThunderstoreStagingDir)\plugins" OverwriteReadOnlyFiles="true" />
+    <ItemGroup>
+      <AssetsFiles Include="$(ThunderstoreDir)\Assets\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AssetsFiles)" DestinationFolder="$(ThunderstoreStagingDir)\plugins\Assets\%(RecursiveDir)" />
     
     <!-- Delete old zip if exists -->
     <Delete Files="$(ThunderstoreZip)" Condition="Exists('$(ThunderstoreZip)')" />
     
     <!-- Create Thunderstore package zip -->
-    <ZipDirectory SourceDirectory="$(ThunderstoreDir)" DestinationFile="$(ThunderstoreZip)" Overwrite="true" />
+    <ZipDirectory SourceDirectory="$(ThunderstoreStagingDir)" DestinationFile="$(ThunderstoreZip)" Overwrite="true" />
+    
+    <!-- Clean up staging directory -->
+    <RemoveDir Directories="$(ThunderstoreStagingDir)" />
     
     <Message Text="Thunderstore package created: $(ThunderstoreZip)" Importance="high" />
   </Target>
