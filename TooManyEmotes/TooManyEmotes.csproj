@@ -219,8 +219,28 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /Y "$(TargetDir)$(TargetName).dll" "C:\Users\cmoor\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\Flip\BepInEx\plugins\FlipMods-TooManyEmotes\plugins\"
-xcopy /Y "$(TargetDir)$(TargetName).dll" "C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\plugins\FlipMods-TooManyEmotes\plugins\"</PostBuildEvent>
-  </PropertyGroup>
+  
+  <!-- Optional: Copy to local plugin folders (commented out) -->
+  <!-- <Target Name="CopyToPlugin" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\Users\cmoor\AppData\Roaming\r2modmanPlus-local\LethalCompany\profiles\Flip\BepInEx\plugins\FlipMods-TooManyEmotes\plugins\" OverwriteReadOnlyFiles="true" ContinueOnError="true" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\BepInEx\plugins\FlipMods-TooManyEmotes\plugins\" OverwriteReadOnlyFiles="true" ContinueOnError="true" />
+  </Target> -->
+
+  <Target Name="PackageThunderstore" AfterTargets="Build">
+    <PropertyGroup>
+      <ThunderstoreDir>$(ProjectDir)Thunderstore</ThunderstoreDir>
+      <ThunderstoreZip>$(ProjectDir)bin\TooManyEmotes-Thunderstore.zip</ThunderstoreZip>
+    </PropertyGroup>
+    
+    <!-- Copy DLL to Thunderstore folder root -->
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ThunderstoreDir)" OverwriteReadOnlyFiles="true" />
+    
+    <!-- Delete old zip if exists -->
+    <Delete Files="$(ThunderstoreZip)" Condition="Exists('$(ThunderstoreZip)')" />
+    
+    <!-- Create Thunderstore package zip -->
+    <ZipDirectory SourceDirectory="$(ThunderstoreDir)" DestinationFile="$(ThunderstoreZip)" Overwrite="true" />
+    
+    <Message Text="Thunderstore package created: $(ThunderstoreZip)" Importance="high" />
+  </Target>
 </Project>
